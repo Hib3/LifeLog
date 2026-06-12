@@ -1,5 +1,5 @@
 /* いっぽ — service worker (offline-first) */
-const CACHE = "ippo-v1.1.1";
+const CACHE = "ippo-v1.1.2";
 const ASSETS = [
   "./",
   "./index.html",
