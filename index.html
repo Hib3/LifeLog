@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>いっぽ — 動けない日の、最初の一歩</title>
+<meta name="description" content="メンタルの波で動き出せない日のための行動支援アプリ。2分スターター、5秒カウントダウン、ボックス呼吸、エネルギー記録。">
+<meta name="theme-color" content="#0f1420">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="いっぽ">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<main id="app">
+
+  <!-- ============ HOME ============ -->
+  <section class="view" id="view-home" data-active="true">
+    <header class="home-head">
+      <div>
+        <p class="greeting" id="greeting">こんにちは</p>
+      </div>
+      <button class="icon-btn" id="btn-settings" aria-label="設定">
+        <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.4-2.6.1-.9-.1-.9 1.9-1.5-1.8-3.2-2.3.8a7 7 0 0 0-1.6-.9L15.2 4H11l-.4 2.3a7 7 0 0 0-1.6.9l-2.3-.8L4.9 9.6l1.9 1.5-.1.9.1.9-1.9 1.5 1.8 3.2 2.3-.8c.5.4 1 .7 1.6.9l.4 2.3h4.2l.4-2.3c.6-.2 1.1-.5 1.6-.9l2.3.8 1.8-3.2-1.9-1.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </button>
+    </header>
+
+    <!-- energy check-in -->
+    <div class="card" id="checkin-card">
+      <h2 class="card-title">いまのエネルギーは?</h2>
+      <p class="card-sub">正直でOK。それに合わせて提案を変えます。</p>
+      <div class="energy-row" role="radiogroup" aria-label="エネルギーレベル">
+        <button class="energy-btn" data-level="1" role="radio" aria-checked="false"><span class="e-face">🌑</span><span class="e-label">空っぽ</span></button>
+        <button class="energy-btn" data-level="2" role="radio" aria-checked="false"><span class="e-face">🌘</span><span class="e-label">低め</span></button>
+        <button class="energy-btn" data-level="3" role="radio" aria-checked="false"><span class="e-face">🌗</span><span class="e-label">ふつう</span></button>
+        <button class="energy-btn" data-level="4" role="radio" aria-checked="false"><span class="e-face">🌖</span><span class="e-label">高め</span></button>
+        <button class="energy-btn" data-level="5" role="radio" aria-checked="false"><span class="e-face">🌕</span><span class="e-label">あふれる</span></button>
+      </div>
+    </div>
+
+    <!-- adaptive suggestion -->
+    <div class="card suggestion hidden" id="suggestion-card">
+      <p class="suggest-text" id="suggest-text"></p>
+      <div class="suggest-actions" id="suggest-actions"></div>
+    </div>
+
+    <!-- quick actions -->
+    <h2 class="section-label">道具箱</h2>
+    <div class="tool-grid">
+      <button class="tool" data-go="start">
+        <span class="tool-emoji">⏱</span>
+        <span class="tool-name">2分スターター</span>
+        <span class="tool-desc">「2分だけ」で動き出す</span>
+      </button>
+      <button class="tool" data-go="breathe">
+        <span class="tool-emoji">🫁</span>
+        <span class="tool-name">ボックス呼吸</span>
+        <span class="tool-desc">SEALs式・心を鎮める</span>
+      </button>
+      <button class="tool" data-go="plan">
+        <span class="tool-emoji">🧭</span>
+        <span class="tool-name">If-Then作戦</span>
+        <span class="tool-desc">迷わない仕組みを作る</span>
+      </button>
+      <button class="tool" data-go="log">
+        <span class="tool-emoji">🌱</span>
+        <span class="tool-name">できたログ</span>
+        <span class="tool-desc">小さな一歩の貯金箱</span>
+      </button>
+    </div>
+
+    <!-- install hint (iOS) -->
+    <div class="card install-card hidden" id="install-card">
+      <p class="install-text" id="install-text"></p>
+      <div class="suggest-actions">
+        <button class="chip small" id="btn-install-go">インストールする</button>
+        <button class="chip small" id="btn-install-dismiss">あとで</button>
+      </div>
+    </div>
+
+    <!-- today's wins preview -->
+    <div class="card" id="today-card">
+      <h2 class="card-title">今日のいっぽ</h2>
+      <ul class="win-list" id="today-wins"><li class="win-empty">まだ記録はありません。ゼロの日があって当たり前です。</li></ul>
+    </div>
+  </section>
+
+  <!-- ============ START (2-min starter) ============ -->
+  <section class="view" id="view-start">
+    <header class="view-head"><button class="icon-btn back" data-go="home" aria-label="戻る"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>2分スターター</h1></header>
+
+    <div class="start-stage" id="stage-input">
+      <p class="stage-lead">やることを、<strong>できるだけ小さく</strong>書いてください。</p>
+      <p class="stage-hint">例:「レポートを書く」→「ファイルを開くだけ」</p>
+      <input type="text" id="task-input" class="big-input" maxlength="40" placeholder="例:机の上の1枚だけ片づける" autocomplete="off">
+      <div class="chip-row" id="task-chips">
+        <button class="chip">ファイルを開くだけ</button>
+        <button class="chip">1行だけ読む</button>
+        <button class="chip">服を1枚だけたたむ</button>
+        <button class="chip">水を1杯飲む</button>
+      </div>
+      <button class="primary-btn" id="btn-to-countdown" disabled>準備OK</button>
+    </div>
+
+    <div class="start-stage hidden" id="stage-countdown">
+      <p class="stage-lead">考えるのは終わり。<br>カウントが消えたら、体を動かす。</p>
+      <div class="count-circle"><span id="count-num">5</span></div>
+      <p class="stage-hint">— 5秒ルール:脳がブレーキを踏む前に —</p>
+    </div>
+
+    <div class="start-stage hidden" id="stage-timer">
+      <p class="stage-task" id="timer-task-label"></p>
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 200 200">
+          <circle class="ring-bg" cx="100" cy="100" r="88"/>
+          <circle class="ring-fg" id="ring-fg" cx="100" cy="100" r="88"/>
+        </svg>
+        <div class="ring-center"><span id="timer-display">2:00</span><span class="ring-sub">2分だけ</span></div>
+      </div>
+      <p class="stage-hint">2分経ったら、やめてもいい。それがルール。</p>
+      <button class="ghost-btn" id="btn-abort-timer">今日はここまでにする</button>
+    </div>
+
+    <div class="start-stage hidden" id="stage-done">
+      <div class="done-burst" aria-hidden="true">🎉</div>
+      <h2 class="done-title">2分、動けた。</h2>
+      <p class="stage-lead">それは「ゼロ」と「イチ」の間にある、いちばん大きな一歩です。</p>
+      <div class="done-actions">
+        <button class="primary-btn" id="btn-continue">のってきた。続ける(+5分)</button>
+        <button class="secondary-btn" id="btn-stop-here">ここでやめて記録する</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BREATHE ============ -->
+  <section class="view" id="view-breathe">
+    <header class="view-head"><button class="icon-btn back" data-go="home" aria-label="戻る"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>ボックス呼吸</h1></header>
+    <p class="stage-lead center">米海軍SEALsが極限状態で使う呼吸法。<br>4秒ずつ「吸う→止める→吐く→止める」。</p>
+    <div class="breathe-wrap">
+      <div class="breathe-box" id="breathe-box">
+        <div class="breathe-dot" id="breathe-dot"></div>
+        <span class="breathe-word" id="breathe-word">準備</span>
+      </div>
+    </div>
+    <p class="breathe-count" id="breathe-cycles"></p>
+    <button class="primary-btn center-btn" id="btn-breathe">はじめる</button>
+  </section>
+
+  <!-- ============ PLAN (If-Then) ============ -->
+  <section class="view" id="view-plan">
+    <header class="view-head"><button class="icon-btn back" data-go="home" aria-label="戻る"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>If-Then作戦</h1></header>
+    <p class="stage-lead">「いつ・どこで・何をするか」を先に決めておくと、実行率が2〜3倍になります(実行意図)。迷う余地を消しましょう。</p>
+    <div class="card plan-form">
+      <label class="field"><span class="field-label">もし(If)…</span>
+        <input type="text" id="plan-if" maxlength="40" placeholder="例:朝、歯みがきが終わったら" autocomplete="off"></label>
+      <label class="field"><span class="field-label">そのとき(Then)…</span>
+        <input type="text" id="plan-then" maxlength="40" placeholder="例:机に座って教科書を開く" autocomplete="off"></label>
+      <button class="primary-btn" id="btn-add-plan">作戦に追加</button>
+    </div>
+    <h2 class="section-label">あなたの作戦</h2>
+    <ul class="plan-list" id="plan-list"></ul>
+  </section>
+
+  <!-- ============ NOTE (diary / lifelog) ============ -->
+  <section class="view" id="view-note">
+    <header class="view-head"><button class="icon-btn back" data-go="home" aria-label="戻る"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>こころノート</h1></header>
+
+    <div class="card">
+      <h2 class="card-title" id="note-date">今日</h2>
+      <p class="card-sub">1行でも、絵文字ひとつでもOK。書けない日は気分だけで十分。</p>
+
+      <div class="mood-row" role="radiogroup" aria-label="今日の気分">
+        <button class="mood-btn" data-mood="1" role="radio" aria-checked="false">😢</button>
+        <button class="mood-btn" data-mood="2" role="radio" aria-checked="false">😟</button>
+        <button class="mood-btn" data-mood="3" role="radio" aria-checked="false">😐</button>
+        <button class="mood-btn" data-mood="4" role="radio" aria-checked="false">🙂</button>
+        <button class="mood-btn" data-mood="5" role="radio" aria-checked="false">😊</button>
+      </div>
+
+      <textarea id="note-text" class="note-textarea" rows="3" maxlength="2000" placeholder="今日のこと、頭の中のこと、なんでも"></textarea>
+
+      <div class="good-block">
+        <span class="field-label">よかったこと(小さくてOK)</span>
+        <input type="text" class="good-input" id="good-1" maxlength="60" placeholder="① 例:ベッドから出られた">
+        <input type="text" class="good-input" id="good-2" maxlength="60" placeholder="②(あれば)">
+        <input type="text" class="good-input" id="good-3" maxlength="60" placeholder="③(あれば)">
+      </div>
+
+      <div class="life-row">
+        <label class="life-item">😴 睡眠
+          <span><input type="number" id="note-sleep" min="0" max="24" step="0.5" inputmode="decimal" placeholder="--"> 時間</span>
+        </label>
+        <label class="life-item med-item">💊 おくすり
+          <input type="checkbox" id="note-med"><span class="med-mark" aria-hidden="true">飲めた</span>
+        </label>
+      </div>
+
+      <div class="photo-row">
+        <input type="file" id="note-photo-input" accept="image/*" hidden>
+        <button class="secondary-btn photo-btn" id="btn-photo">📷 今日の1枚を残す</button>
+        <div class="photo-preview hidden" id="photo-preview">
+          <img id="photo-thumb" alt="今日の写真">
+          <button class="photo-del" id="btn-photo-del" aria-label="写真を削除">✕</button>
+        </div>
+      </div>
+
+      <button class="primary-btn" id="btn-save-note">ノートに記録する</button>
+    </div>
+
+    <h2 class="section-label">これまでのノート</h2>
+    <ul class="note-list" id="note-list"></ul>
+  </section>
+
+  <!-- ============ LOG ============ -->
+  <section class="view" id="view-log">
+    <header class="view-head"><button class="icon-btn back" data-go="home" aria-label="戻る"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>できたログ</h1></header>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-num" id="stat-total">0</span><span class="stat-label">いっぽ合計</span></div>
+      <div class="stat"><span class="stat-num" id="stat-days">0</span><span class="stat-label">動けた日</span></div>
+      <div class="stat"><span class="stat-num" id="stat-comeback">0</span><span class="stat-label">おかえり回数</span></div>
+    </div>
+    <p class="comeback-note">「おかえり回数」は、休んだあとに戻ってこられた回数。連続記録より、ずっと価値があります。</p>
+    <h2 class="section-label">エネルギーの波(直近14日)</h2>
+    <div class="card"><div class="wave-chart" id="wave-chart"></div></div>
+    <h2 class="section-label">記録</h2>
+    <ul class="win-list full" id="log-list"></ul>
+  </section>
+
+  <!-- ============ GUIDE ============ -->
+  <section class="view" id="view-guide">
+    <header class="view-head"><button class="icon-btn back" data-go="home" aria-label="戻る"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>ガイド</h1></header>
+
+    <div class="card guide-card">
+      <h2 class="card-title">このアプリは誰のため?</h2>
+      <p>うつ・双極性障害・不安・ADHD、あるいは単なる疲れで、<strong>「やるべきことは分かっているのに、体が動かない」</strong>日があるすべての人のためのアプリです。気合いや根性ではなく、行動科学の仕組みで「最初の一歩」を助けます。</p>
+    </div>
+
+    <details class="guide-item" open>
+      <summary>🌅 朝、ベッドから出られないとき</summary>
+      <p>① ホームでエネルギーを正直にチェックイン。<br>② 提案された<strong>ボックス呼吸</strong>を1セット(寝たままでOK)。<br>③ <strong>2分スターター</strong>に「水を1杯飲む」と入れてカウントダウン。体は脳より先に動かせます。</p>
+    </details>
+    <details class="guide-item">
+      <summary>📚 勉強や仕事に手がつかないとき</summary>
+      <p>タスクを<strong>「開くだけ」「1行だけ」</strong>まで小さく砕いて2分スターターへ。2分経ったらやめていいのが約束です。でも実際は、始めてしまえば続くことが多い(作業興奮)。続いたら+5分ずつ延長できます。</p>
+    </details>
+    <details class="guide-item">
+      <summary>😵 頭が真っ白・パニックのとき</summary>
+      <p><strong>ボックス呼吸</strong>へ直行。4秒吸う→4秒止める→4秒吐く→4秒止める。3周で自律神経が落ち着き始めます。兵士が銃撃戦の前に使う、効果が実証された方法です。</p>
+    </details>
+    <details class="guide-item">
+      <summary>⚡ 元気すぎる日(双極の方へ)</summary>
+      <p>エネルギー「あふれる」を選ぶと、アプリは<strong>ブレーキ</strong>を提案します。軽躁のやりすぎは数日後の反動につながります。「今日の予定を増やさない」「23時に切り上げる」をIf-Then作戦に入れておきましょう。</p>
+    </details>
+    <details class="guide-item">
+      <summary>🌱 続かない自分が嫌になったとき</summary>
+      <p>このアプリに「連続◯日」はありません。途切れて当然だからです。代わりに<strong>「おかえり回数」</strong>を数えます。休んで、また戻ってくる。それができる人がいちばん強い。</p>
+    </details>
+    <details class="guide-item">
+      <summary>🧭 If-Then作戦の使い方</summary>
+      <p>心理学者ゴルヴィツァーの「実行意図」研究に基づく機能です。「もし〇〇したら、△△する」と先に決めると、意志力ゼロでも行動が自動発火します。例:「昼ごはんを食べ終えたら→5分だけ散歩する」。作戦は3つまでに絞るのがコツ。</p>
+    </details>
+    <details class="guide-item">
+      <summary>📓 こころノートの使い方</summary>
+      <p>1日1ページの日記+ライフログです。<strong>「よかったこと」を小さくても書く</strong>のは、うつ症状の改善が実証された方法(スリー・グッド・シングス)。<strong>睡眠時間とおくすりの記録</strong>は、双極性障害の波を安定させる基本です(生活リズムが乱れ始めたら早めのサイン)。書けない日は気分の絵文字だけでOK。写真を1枚そえると、あとで見返したとき「ちゃんと生きてた」が見えます。</p>
+    </details>
+    <details class="guide-item">
+      <summary>📱 iPhoneで使いこなす</summary>
+      <p>① Safariの共有ボタン→<strong>「ホーム画面に追加」</strong>でアプリになります(全画面・オフライン動作)。<br>② インストール後は、今日のチェックインがまだだと<strong>アイコンに赤バッジ</strong>が付きます。<br>③ 呼吸・タイマー中は<strong>画面が消灯しません</strong>。<br>④ 毎日のリマインドは、iPhoneの「ショートカット」アプリのオートメーションで「時刻→Webサイトを開く」を作るのがおすすめ(PWAの仕様上、アプリ単体での時刻通知はできないため)。</p>
+    </details>
+    <details class="guide-item">
+      <summary>🔒 データについて</summary>
+      <p>すべての記録は<strong>この端末の中だけ</strong>に保存されます。サーバー送信は一切ありません。設定からいつでも書き出し・削除できます。</p>
+    </details>
+
+    <div class="card guide-card">
+      <p class="disclaimer">⚠️ このアプリは医療行為ではありません。つらさが続くときは、医療機関や相談窓口(<a href="https://www.mhlw.go.jp/mamorouyokokoro/" target="_blank" rel="noopener">まもろうよ こころ</a>)を頼ってください。</p>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="view" id="view-settings">
+    <header class="view-head"><button class="icon-btn back" data-go="home" aria-label="戻る"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>設定</h1></header>
+    <div class="card">
+      <label class="setting-row"><span>呼びかける名前(任意)</span><input type="text" id="setting-name" maxlength="10" placeholder="未設定"></label>
+      <label class="setting-row"><span>アニメーションを減らす</span><input type="checkbox" id="setting-motion"></label>
+      <label class="setting-row"><span>サウンド</span><input type="checkbox" id="setting-sound" checked></label>
+      <label class="setting-row"><span>呼吸の音声ガイド<small class="row-note">「吸って…」を読み上げ</small></span><input type="checkbox" id="setting-voice"></label>
+      <label class="setting-row"><span>タイマー完了を通知<small class="row-note">対応端末のみ</small></span><input type="checkbox" id="setting-notify"></label>
+    </div>
+    <div class="card">
+      <button class="secondary-btn wide" id="btn-share">記録を共有する</button>
+      <button class="secondary-btn wide" id="btn-export">記録をテキストで書き出す</button>
+      <button class="secondary-btn wide" id="btn-backup">バックアップを保存(JSON)</button>
+      <button class="secondary-btn wide" id="btn-import">バックアップを読み込む</button>
+      <input type="file" id="import-input" accept=".json,application/json" hidden>
+      <p class="storage-note" id="storage-note"></p>
+      <button class="danger-btn wide" id="btn-reset">すべてのデータを削除</button>
+    </div>
+    <p class="version-note">いっぽ v1.1 — あなたのペースで。</p>
+  </section>
+
+</main>
+
+<!-- bottom nav -->
+<nav class="bottom-nav" aria-label="メインナビゲーション">
+  <button class="nav-btn" data-go="home" data-nav="home" aria-label="ホーム"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>ホーム</span></button>
+  <button class="nav-btn" data-go="start" data-nav="start" aria-label="はじめる"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 8.5l5 3.5-5 3.5v-7z" fill="currentColor"/></svg><span>はじめる</span></button>
+  <button class="nav-btn" data-go="note" data-nav="note" aria-label="ノート"><svg viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 6h6m-6 4h6m-6 4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>ノート</span></button>
+  <button class="nav-btn" data-go="log" data-nav="log" aria-label="きろく"><svg viewBox="0 0 24 24"><path d="M5 20V10m7 10V4m7 16v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>きろく</span></button>
+  <button class="nav-btn" data-go="guide" data-nav="guide" aria-label="ガイド"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-4.5-2-7-2v14c2.5 0 5 .5 7 2 2-1.5 4.5-2 7-2V4c-2.5 0-5 .5-7 2zm0 0v14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>ガイド</span></button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
