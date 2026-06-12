@@ -1,5 +1,5 @@
 /* いっぽ — service worker (offline-first) */
-const CACHE = "ippo-v1.1.3";
+const CACHE = "ippo-v1.1.4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,6 +25,22 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+
+  if (e.request.mode === "navigate") {
+    e.respondWith(
+      fetch(e.request, { cache: "no-store" })
+        .then((res) => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then((c) => c.put("./index.html", clone));
+          }
+          return res;
+        })
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then((hit) => {
       if (hit) return hit;
